@@ -2,9 +2,9 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- IMPORTANT: Updated viewport meta tag for better keyboard handling -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, interactive-widget=resizes-content">
     <title>SecureChat - Private Messaging</title>
-    <link rel="icon" type="image/webp" href="chat-round-icon.webp">
     <link rel="stylesheet" href="css/chat-responsive.css">
 </head>
 <body>
@@ -42,7 +42,6 @@
                 <div class="contacts-wrapper">
                     <div class="contacts-list" id="contactsList">
                         <!-- Contacts will be dynamically added here -->
-                        <!-- Empty state will be shown by JavaScript when no contacts -->
                     </div>
                 </div>
 
@@ -118,69 +117,78 @@
 
     <!-- Scripts -->
     <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
-
-    <!-- Emoji Picker Library CDN -->
     <script type="module">
         import { Picker } from 'https://unpkg.com/emoji-picker-element@^1/index.js';
         window.EmojiPicker = Picker;
     </script>
-
     <script src="js/encryption.js"></script>
     <script src="js/chat.js"></script>
     <script src="js/textarea-resize.js"></script>
     <script src="js/emoji-picker-handler.js"></script>
     <script>
-        // Mobile menu functionality
-        const plusBtn = document.getElementById('plusBtn');
-        const closeSidebar = document.getElementById('closeSidebar');
-        const sidebar = document.getElementById('sidebar');
-        const overlay = document.getElementById('overlay');
-        const startChat = document.getElementById('startChat');
-        const mobileStatus = document.getElementById('mobileStatus');
+        // --- MOBILE VIEWPORT & MENU FIX ---
+        document.addEventListener('DOMContentLoaded', function() {
+            // Function to handle the viewport height on mobile
+            const setViewportHeight = () => {
+                // We execute the function once
+                const vh = window.innerHeight * 0.01;
+                document.documentElement.style.setProperty('--vh', `${vh}px`);
+            };
 
-        // Set mobile status
-        const username = localStorage.getItem('username');
-        if (mobileStatus && username) {
-            mobileStatus.textContent = username;
-        }
+            // Run it on load
+            setViewportHeight();
 
-        function openMenu() {
-            sidebar.classList.add('active');
-            overlay.classList.add('active');
-            document.body.style.overflow = 'hidden';
-            // Focus on search input when opening for adding contact
-            setTimeout(() => {
-                const searchInput = document.getElementById('searchInput');
-                if (searchInput) {
-                    searchInput.focus();
+            // Run it on resize and orientation change
+            window.addEventListener('resize', setViewportHeight);
+            window.addEventListener('orientationchange', setViewportHeight);
+
+            // Mobile menu functionality
+            const plusBtn = document.getElementById('plusBtn');
+            const closeSidebar = document.getElementById('closeSidebar');
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            const startChat = document.getElementById('startChat');
+            const mobileStatus = document.getElementById('mobileStatus');
+
+            // Set mobile status
+            const username = localStorage.getItem('username');
+            if (mobileStatus && username) {
+                mobileStatus.textContent = username;
+            }
+
+            function openMenu() {
+                sidebar.classList.add('active');
+                overlay.classList.add('active');
+                document.body.style.overflow = 'hidden';
+                setTimeout(() => {
+                    document.getElementById('searchInput')?.focus();
+                }, 300);
+            }
+
+            function closeMenu() {
+                sidebar.classList.remove('active');
+                overlay.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+
+            plusBtn?.addEventListener('click', openMenu);
+            closeSidebar?.addEventListener('click', closeMenu);
+            overlay?.addEventListener('click', closeMenu);
+            startChat?.addEventListener('click', openMenu);
+
+            document.getElementById('contactsList')?.addEventListener('click', (e) => {
+                if (e.target.closest('.contact-item') && window.innerWidth <= 768) {
+                    setTimeout(closeMenu, 100);
                 }
-            }, 300);
-        }
+            });
 
-        function closeMenu() {
-            sidebar.classList.remove('active');
-            overlay.classList.remove('active');
-            document.body.style.overflow = '';
-        }
-
-        plusBtn?.addEventListener('click', openMenu);
-        closeSidebar?.addEventListener('click', closeMenu);
-        overlay?.addEventListener('click', closeMenu);
-        startChat?.addEventListener('click', openMenu);
-
-        // Close menu when contact is selected on mobile
-        document.getElementById('contactsList')?.addEventListener('click', (e) => {
-            if (e.target.closest('.contact-item') && window.innerWidth <= 768) {
-                setTimeout(closeMenu, 100);
+            window.addEventListener('resize', () => {
+                if (window.innerWidth > 768) {
+                    closeMenu();
+                }
+            });
             }
-        });
-
-        // Handle resize
-        window.addEventListener('resize', () => {
-            if (window.innerWidth > 768) {
-                closeMenu();
-            }
-        });
+        );
     </script>
 </body>
 </html>
