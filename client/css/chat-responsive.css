@@ -948,6 +948,362 @@ emoji-picker button.emoji:hover {
     animation: slideUpToast 0.3s ease;
 }
 
+/* ... (Add at the end of the file, before media queries) ... */
+
+/* ===== File Attachment Styles ===== */
+.btn-attach {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    width: 45px;
+    height: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    color: var(--text-secondary);
+    border-radius: 50%;
+    flex-shrink: 0;
+    align-self: flex-end;
+    margin-bottom: 0;
+}
+
+.btn-attach:hover:not(:disabled) {
+    background: var(--bg-hover);
+    color: var(--text-primary);
+    transform: rotate(90deg);
+}
+
+.btn-attach:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+.message-input-area.has-previews {
+    flex-direction: column;
+    align-items: stretch;
+}
+
+.file-preview-container {
+    display: none;
+    gap: 0.75rem;
+    padding: 0.5rem 0.75rem;
+    overflow-x: auto;
+    border-top: 1px solid var(--border-color);
+    margin-top: 0.5rem;
+    max-height: 120px;
+}
+
+.file-preview-item {
+    position: relative;
+    width: 80px;
+    height: 80px;
+    flex-shrink: 0;
+    border-radius: 8px;
+    overflow: hidden;
+    background: var(--bg-primary);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--border-color);
+}
+
+.file-preview-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.file-preview-icon {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+.remove-file-btn {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    line-height: 20px;
+    text-align: center;
+    z-index: 2;
+}
+
+.file-preview-name {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+    color: white;
+    font-size: 11px;
+    padding: 8px 4px 4px;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Sent File Message Bubble */
+.file-bubble {
+    padding: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.message-image-preview {
+    max-width: 250px;
+    max-height: 250px;
+    border-radius: 0.75rem;
+    object-fit: cover;
+    cursor: pointer;
+}
+
+.file-icon-placeholder {
+    width: 100px;
+    height: 100px;
+    background: var(--bg-tertiary);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+.message-file-name {
+    font-size: 13px;
+    color: var(--text-secondary);
+    padding: 0 0.5rem;
+}
+
+/* Add these styles to your existing CSS */
+
+.attach-btn {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    padding: 8px;
+    margin-right: 8px;
+    transition: transform 0.2s;
+}
+
+.attach-btn:hover {
+    transform: scale(1.1);
+}
+
+.message-image {
+    max-width: 300px;
+    max-height: 300px;
+    border-radius: 8px;
+    cursor: pointer;
+    display: block;
+    margin: 5px 0;
+    transition: transform 0.2s;
+}
+
+.message-image:hover {
+    transform: scale(1.02);
+}
+
+.message-image.loading {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: loading 1.5s infinite;
+    min-width: 200px;
+    min-height: 200px;
+}
+
+/* Time overlay on image - positioned at bottom right inside the image */
+.message-time-overlay {
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+    background: rgba(0, 0, 0, 0.75);
+    color: #ffffff;
+    font-size: 0.6875rem; /* 11px */
+    font-weight: 500;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-family: var(--font-primary);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    pointer-events: none;
+    letter-spacing: 0.01em;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Message bubble adjustments for images */
+.message .message-bubble:has(.message-image) {
+    padding: 0;
+    background: transparent;
+    border: none;
+}
+
+.message.sent .message-bubble:has(.message-image) {
+    background: transparent;
+}
+
+.message.received .message-bubble:has(.message-image) {
+    background: var(--bg-message-received);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 0;
+    overflow: hidden;
+}
+
+/* Ensure proper spacing for image bubbles */
+.message.sent:has(.message-image) {
+    margin-bottom: 1rem;
+}
+
+.message.received:has(.message-image) {
+    margin-bottom: 1rem;
+}
+
+@keyframes loading {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+.message-input-container {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+}
+
+/* Sender name styling for received image messages */
+.message.received .message-bubble .message-sender {
+    font-family: var(--font-primary);
+    font-size: 0.8125rem; /* 13px */
+    font-weight: 600;
+    color: #fbbf24; /* Yellow color */
+    margin-bottom: 0.5rem;
+    letter-spacing: 0.02em;
+    padding: 0.5rem 0.75rem 0 0.75rem;
+}
+
+/* Image wrapper container */
+.message-bubble .image-wrapper {
+    position: relative;
+    display: inline-block;
+    border-radius: 12px;
+    overflow: hidden;
+    margin: 0;
+}
+
+/* Ensure image fits nicely below sender name */
+/* Image inside message bubble */
+.message-bubble .message-image {
+    max-width: 300px;
+    max-height: 300px;
+    min-width: 200px;
+    min-height: 150px;
+    border-radius: 12px;
+    cursor: pointer;
+    display: block;
+    margin: 0;
+    object-fit: cover;
+    transition: transform 0.2s ease;
+}
+
+.message-bubble .message-image:hover {
+    transform: scale(1.02);
+}
+
+/* Image upload progress */
+.image-upload-progress {
+    padding: 1rem;
+    min-width: 200px;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 0.5rem;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent-hover));
+    border-radius: 4px;
+    transition: width 0.3s ease;
+}
+
+.progress-text {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    text-align: center;
+}
+
+/* Loading state for images */
+.message-bubble .message-image.loading {
+    background: linear-gradient(90deg, 
+        rgba(255, 255, 255, 0.05) 25%, 
+        rgba(255, 255, 255, 0.1) 50%, 
+        rgba(255, 255, 255, 0.05) 75%
+    );
+    background-size: 200% 100%;
+    animation: loading 1.5s infinite;
+}
+
+/* Adjustments for media queries */
+@media (max-width: 768px) {
+    .btn-attach {
+        width: 42px;
+        height: 42px;
+    }
+    
+    .message-input-area {
+        flex-wrap: wrap;
+    }
+    
+    .file-preview-container {
+        width: 100%;
+        order: -1; /* Move previews above input area */
+        margin-bottom: 0.5rem;
+    }
+    
+    .message-image-preview {
+        max-width: 200px;
+        max-height: 200px;
+    }
+
+    .message-bubble .message-image {
+        max-width: 250px;
+        max-height: 250px;
+        min-width: 180px;
+        min-height: 130px;
+    }
+    
+    .message-time-overlay {
+        font-size: 0.625rem; /* 10px */
+        padding: 3px 8px;
+        bottom: 6px;
+        right: 6px;
+    }
+    
+    .message.received .message-bubble .message-sender {
+        font-size: 0.75rem; /* 12px */
+        padding: 0.4rem 0.6rem 0 0.6rem;
+    }
+}
+
 @keyframes slideUpToast {
     from {
         transform: translate(-50%, 100%);
@@ -1161,11 +1517,33 @@ emoji-picker button.emoji:hover {
         width: 16px;
         height: 16px;
     }
+
+    .message-bubble .message-image {
+        max-width: 220px;
+        max-height: 220px;
+        min-width: 160px;
+        min-height: 120px;
+    }
+    
+    .message-time-overlay {
+        font-size: 0.5625rem; /* 9px */
+        padding: 2px 6px;
+        bottom: 5px;
+        right: 5px;
+    }
     
     emoji-picker.emoji-picker-dark {
         height: 320px !important;
         --num-columns: 6 !important;
         --emoji-size: 1.1rem !important;
+    }
+}
+
+/* ===== Tablet Responsive ===== */
+@media (max-width: 1024px) and (min-width: 769px) {
+    .message-bubble .message-image {
+        max-width: 280px;
+        max-height: 280px;
     }
 }
 

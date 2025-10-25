@@ -135,6 +135,47 @@ class E2EEncryption {
         return decoder.decode(decryptedData);
     }
 
+    // Encrypt file/image with AES
+    async encryptFile(fileBuffer, userId) {
+        const aesKey = this.sharedSecrets.get(userId);
+        if (!aesKey) throw new Error("No shared key with this user");
+        
+        const iv = window.crypto.getRandomValues(new Uint8Array(12));
+        const encryptedData = await window.crypto.subtle.encrypt(
+            {
+                name: "AES-GCM",
+                iv: iv
+            },
+            aesKey,
+            fileBuffer
+        );
+        
+        return {
+            encrypted: this.arrayBufferToBase64(encryptedData),
+            iv: this.arrayBufferToBase64(iv)
+        };
+    }
+
+    // Decrypt file/image with AES
+    async decryptFile(encryptedFile, iv, userId) {
+        const aesKey = this.sharedSecrets.get(userId);
+        if (!aesKey) throw new Error("No shared key with this user");
+        
+        const encryptedData = this.base64ToArrayBuffer(encryptedFile);
+        const ivBuffer = this.base64ToArrayBuffer(iv);
+        
+        const decryptedData = await window.crypto.subtle.decrypt(
+            {
+                name: "AES-GCM",
+                iv: ivBuffer
+            },
+            aesKey,
+            encryptedData
+        );
+        
+        return decryptedData;
+    }
+
     // Store shared secret for a user
     setSharedSecret(userId, aesKey) {
         this.sharedSecrets.set(userId, aesKey);
