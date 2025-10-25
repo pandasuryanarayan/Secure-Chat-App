@@ -156,6 +156,11 @@ body::before {
   gap: 12px;
 }
 
+.auth-container h1::before {
+  content: "🔒";
+  font-size: 2rem;
+}
+
 .subtitle {
   text-align: center;
   color: var(--text-secondary);
