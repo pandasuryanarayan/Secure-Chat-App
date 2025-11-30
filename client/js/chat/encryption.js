@@ -200,3 +200,5 @@ class E2EEncryption {
         return bytes.buffer;
     }
 }
+
+export default E2EEncryption;
