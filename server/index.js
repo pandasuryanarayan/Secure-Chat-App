@@ -53,6 +53,7 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/chatapp')
 
 // User Model
 const User = require('./models/User');
+const TokenBlacklist = require('./models/TokenBlacklist');
 const authMiddleware = require('./middleware/auth');
 
 // Helper Functions
@@ -118,24 +119,40 @@ function getPendingMessages(userId, fromUserId = null) {
 
 // ============ API ROUTES ============
 
-// Register
+// Helper function to verify hashed password
+function verifyHashedPassword(hashedPassword, email, timestamp) {
+    // Verify timestamp is recent (within 5 minutes)
+    const now = Date.now();
+    const requestTime = parseInt(timestamp);
+    if (now - requestTime > 5 * 60 * 1000) { // 5 minutes
+        return false;
+    }
+    return true;
+}
+
+// Updated Register endpoint to handle hashed passwords
 app.post('/api/register', async (req, res) => {
   try {
-    const { email, password, username } = req.body;
+    const { email, password, username, timestamp } = req.body;
 
-    // Validation
+    // Validate inputs
     if (!email || !password || !username) {
       return res.status(400).json({ message: 'All fields are required' });
     }
 
+    // Verify request is recent
+    if (!verifyHashedPassword(password, email, timestamp)) {
+      return res.status(400).json({ message: 'Request expired. Please try again.' });
+    }
+
     // Check if user exists
-    const existingUser = await User.findOne({ email });
+    const existingUser = await User.findOne({ email: email.toLowerCase() });
     if (existingUser) {
       return res.status(400).json({ message: 'User already exists' });
     }
 
-    // Hash password
-    const hashedPassword = await bcrypt.hash(password, 10);
+    // The password is already hashed on client-side, hash it again with bcrypt for storage
+    const serverHashedPassword = await bcrypt.hash(password, 10);
 
     // Generate unique 6-digit ID
     let userId;
@@ -148,8 +165,8 @@ app.post('/api/register', async (req, res) => {
 
     // Create user
     const user = new User({
-      email,
-      password: hashedPassword,
+      email: email.toLowerCase(),
+      password: serverHashedPassword,
       username,
       userId
     });
@@ -175,23 +192,28 @@ app.post('/api/register', async (req, res) => {
   }
 });
 
-// Login
+// Updated Login endpoint to handle hashed passwords
 app.post('/api/login', async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, password, timestamp } = req.body;
 
-    // Validation
+    // Validate inputs
     if (!email || !password) {
       return res.status(400).json({ message: 'Email and password are required' });
     }
 
+    // Verify request is recent
+    if (!verifyHashedPassword(password, email, timestamp)) {
+      return res.status(400).json({ message: 'Request expired. Please try again.' });
+    }
+
     // Find user
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email: email.toLowerCase() });
     if (!user) {
       return res.status(400).json({ message: 'Invalid credentials' });
     }
 
-    // Check password
+    // Check password (password is already hashed on client-side)
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(400).json({ message: 'Invalid credentials' });
@@ -221,9 +243,23 @@ app.post('/api/login', async (req, res) => {
   }
 });
 
-// Logout
+// ✅ UPDATED: Logout - Add token to blacklist
 app.post('/api/logout', authMiddleware, async (req, res) => {
   try {
+    const token = req.token;
+    const userId = req.userDbId;
+    
+    // Get user info for logging
+    const user = await User.findById(req.userId);
+    
+    // Add token to blacklist
+    await TokenBlacklist.create({
+      token: token,
+      userId: userId,
+      username: user?.username,
+      reason: 'logout'
+    });
+    
     // Update user offline status
     await User.findByIdAndUpdate(
       req.userId,
@@ -233,10 +269,50 @@ app.post('/api/logout', authMiddleware, async (req, res) => {
       }
     );
     
-    res.json({ message: 'Logged out successfully' });
+    console.log(`User ${userId} (${user?.username}) logged out, token blacklisted`);
+    
+    res.json({ 
+      message: 'Logged out successfully',
+      success: true 
+    });
   } catch (error) {
     console.error('Logout error:', error);
-    res.status(500).json({ message: 'Server error', error: error.message });
+    
+    // Even if blacklist fails, update user status
+    try {
+      await User.findByIdAndUpdate(
+        req.userId,
+        { 
+          isOnline: false, 
+          lastSeen: new Date() 
+        }
+      );
+    } catch (e) {
+      console.error('Failed to update user status:', e);
+    }
+    
+    res.status(500).json({ 
+      message: 'Logout error', 
+      error: error.message 
+    });
+  }
+});
+
+// ✅ NEW: Verify token is valid (not blacklisted, not expired)
+app.get('/api/verify-token', authMiddleware, async (req, res) => {
+  try {
+    // If we reach here, token passed all checks in authMiddleware
+    res.json({ 
+      valid: true,
+      userId: req.userDbId,
+      username: (await User.findById(req.userId))?.username
+    });
+  } catch (error) {
+    console.error('Token verification error:', error);
+    res.status(500).json({ 
+      valid: false,
+      message: 'Error verifying token' 
+    });
   }
 });
 
@@ -691,6 +767,22 @@ setInterval(() => {
     console.log(`Cleaned ${cleanedImages} old images and ${cleanedChunks} incomplete uploads`);
   }
 }, 30 * 60 * 1000); // Every 30 minutes
+
+// ✅ Clean up expired blacklisted tokens (every 24 hours)
+setInterval(async () => {
+  try {
+    const sevenDaysAgo = new Date(Date.now() - (7 * 24 * 60 * 60 * 1000));
+    const result = await TokenBlacklist.deleteMany({
+      blacklistedAt: { $lt: sevenDaysAgo }
+    });
+    
+    if (result.deletedCount > 0) {
+      console.log(`🧹 Cleaned ${result.deletedCount} expired blacklisted tokens`);
+    }
+  } catch (error) {
+    console.error('❌ Error cleaning blacklisted tokens:', error);
+  }
+}, 24 * 60 * 60 * 1000); // Run daily
 
 // Graceful shutdown
 process.on('SIGTERM', () => {
