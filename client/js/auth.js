@@ -1,4 +1,4 @@
-const API_URL = "https://secure-chat-app-8typ.onrender.com/api";
+const API_URL = 'https://secure-chat-app-8typ.onrender.com/api';
 
 // Password hashing utility using Web Crypto API
 class PasswordHasher {
