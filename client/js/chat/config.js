@@ -4,7 +4,7 @@
 
 const CONFIG = {
     // Server Configuration
-    SERVER_URL: 'https://secure-chat-app-8typ.onrender.com',
+    SERVER_URL: 'http://localhost:3000',
     
     get API_URL() {
         return `${this.SERVER_URL}/api`;

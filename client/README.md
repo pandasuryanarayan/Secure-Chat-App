@@ -26,21 +26,77 @@ This is the frontend client for SecureChat, a secure end-to-end encrypted messag
 ## Project Structure
 
 ```
-client/
-├── index.html            # Landing page
-├── login.html            # Login/Register page
-├── chat.html             # Main chat interface
-├── css/
-│   ├── index.css         # Landing page styles
-│   ├── login.css         # Login page styles
-│   └── chat-responsive.css # Chat interface styles
-├── js/
-│   ├── auth.js           # Authentication logic
-│   ├── chat.js           # Main chat functionality
-│   ├── encryption.js     # E2E encryption implementation
-│   ├── textarea-resize.js # Auto-expanding textarea
-│   └── emoji-picker-handler.js # Emoji picker integration
-└── README.md             # This file
+client
+├── css
+│   ├── index                      // Styles for main landing page
+│   │   ├── components
+│   │   │   ├── cta.css            // Call-to-action section styles
+│   │   │   ├── features.css       // Feature highlights section
+│   │   │   ├── footer.css         // Footer layout & styling
+│   │   │   ├── hero.css           // Hero/banner section styles
+│   │   │   ├── navbar.css         // Top navigation bar styles
+│   │   │   ├── security.css       // Security feature section
+│   │   │   └── steps.css          // How-it-works/steps section
+│   │   ├── animations.css         // Shared animations
+│   │   ├── base.css               // Base resets & typography
+│   │   ├── layout.css             // Page-level layout helpers
+│   │   ├── responsive.css         // Responsive breakpoints
+│   │   └── variables.css          // CSS variables (colors, spacing)
+│   ├── login                      // Styles for login/register views
+│   │   ├── components
+│   │   │   ├── buttons.css        // Auth buttons styling
+│   │   │   ├── card.css           // Auth card/container styles
+│   │   │   ├── form.css           // Form fields & validation UI
+│   │   │   ├── messages.css       // Auth info/error messages
+│   │   │   └── tabs.css           // Login/register tab switcher
+│   │   ├── animations.css         // Login-specific animations
+│   │   ├── base.css               // Base styles for login pages
+│   │   ├── layout.css             // Layout for auth screens
+│   │   ├── responsive.css         // Responsive login layouts
+│   │   └── variables.css          // Auth theme variables
+│   └── securechat-css             // In-app chat UI styles
+│       ├── components
+│       │   ├── buttons.css        // Chat action buttons
+│       │   ├── chat.css           // Overall chat layout
+│       │   ├── emoji-picker.css   // Emoji picker component
+│       │   ├── header.css         // Chat header/top bar
+│       │   ├── input.css          // Message input area
+│       │   ├── messages.css       // Message bubbles & list
+│       │   └── sidebar.css        // Sidebar & chat list
+│       ├── animations.css         // Chat-specific animations
+│       ├── base.css               // Base chat styles
+│       ├── layout.css             // Layout utilities for chat
+│       ├── responsive.css         // Responsive chat behavior
+│       ├── utilities.css          // Helper utility classes
+│       └── variables.css          // Chat theme variables
+├── js
+│   ├── chat
+│   │   ├── api-handler.js             // Handles API requests to backend
+│   │   ├── chat-init.js               // Main initialization
+│   │   ├── config.js                  // Configuration & constants
+│   │   ├── contact-handler.js         // Contact management
+│   │   ├── dom-manager.js             // DOM element references
+│   │   ├── emoji-picker-handler.js    // Emoji picker interactions
+│   │   ├── encryption-handler.js      // Encryption & key exchange
+│   │   ├── encryption.js              // Core encryption helpers
+│   │   ├── event-listeners.js         // Event setup
+│   │   ├── image-handler.js           // Image operations
+│   │   ├── message-handler.js         // Message operations
+│   │   ├── notification-handler.js    // Notifications & toasts
+│   │   ├── socket-manager.js          // Socket.IO connection
+│   │   ├── state-manager.js           // Global state management
+│   │   ├── status-handler.js          // Online/offline status
+│   │   ├── textarea-resize.js         // Auto-resize chat textarea
+│   │   ├── ui-controller.js           // UI updates & controls
+│   │   └── utils.js                   // Utility functions
+│   ├── app-init.js                    // App-level initialization
+│   └── auth.js                        // Authentication helpers
+├── chat-round-icon.webp               // Chat app icon
+├── chat.html                          // Chat interface page
+├── index.html                         // Landing page
+├── login.html                         // Login page
+├── notification.png                   // Notification icon
+└── README.md                          // Project documentation
 ```
 
 ## Getting Started
@@ -111,16 +167,7 @@ The interface adapts to different screen sizes:
 
 ### Theme
 
-The application uses CSS variables for theming. You can modify the colors in `chat-responsive.css`:
-
-```css
-:root {
-    --bg-primary: #0a0a0a;
-    --bg-secondary: #141414;
-    --accent: #4a9eff;
-    /* and more variables */
-}
-```
+The application uses CSS variables for theming. You can modify the colors in css files.
 
 ### Fonts
 
