@@ -28,7 +28,8 @@ This is the backend server for SecureChat, a secure end-to-end encrypted messagi
 server/
 ├── index.js              # Main server file
 ├── models/
-│   └── User.js           # User model schema
+│   ├── User.js           # User model schema
+│   └── TokenBlacklist.js # Token blacklist for logout/revocation
 ├── middleware/
 │   └── auth.js           # Authentication middleware
 ├── .env                  # Environment variables (create this)
@@ -94,11 +95,6 @@ npm start
 
 - **GET /api/contacts**: Get user's contacts (requires auth)
   - Returns: Array of contacts
-
-### Test
-
-- **GET /api/test**: Test if API is working
-  - Returns: "API is working!"
 
 ## Socket.IO Events
 
